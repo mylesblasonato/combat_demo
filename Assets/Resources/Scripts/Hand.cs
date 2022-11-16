@@ -21,6 +21,7 @@ public class Hand : MonoBehaviour
     private void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
         animator = GetComponent<Animator>();
     }
 

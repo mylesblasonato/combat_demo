@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.InputSystem;
 
 // This class manages which player behaviour is active or overriding, and call its local functions.
 // Contains basic setup and common functions used by all the player behaviours.
@@ -8,7 +9,7 @@ public class BasicBehaviour : MonoBehaviour
 	public Transform playerCamera;                        // Reference to the camera that focus the player.
 	public float turnSmoothing = 0.06f;                   // Speed of turn when moving to match camera facing.
 	public float sprintFOV = 100f;                        // the FOV to use on the camera when player is sprinting.
-	public string sprintButton = "Sprint";                // Default sprint button input name.
+	public InputAction inputAction;
 
 	private float h;                                      // Horizontal Axis.
 	private float v;                                      // Vertical Axis.
@@ -52,6 +53,7 @@ public class BasicBehaviour : MonoBehaviour
 		anim = GetComponent<Animator> ();
 		hFloat = Animator.StringToHash("H");
 		vFloat = Animator.StringToHash("V");
+		playerCamera = GameObject.FindWithTag("PlayerCam").transform;
 		camScript = playerCamera.GetComponent<ThirdPersonOrbitCamBasic> ();
 		rBody = GetComponent<Rigidbody> ();
 
@@ -60,30 +62,42 @@ public class BasicBehaviour : MonoBehaviour
 		colExtents = GetComponent<Collider>().bounds.extents;
 	}
 
+	public void GetInputActionMove(InputAction.CallbackContext context)
+    {
+		// Store the input axes.
+		h = context.ReadValue<Vector2>().x;
+		v = context.ReadValue<Vector2>().y;
+	}
+
+	public void Sprint(InputAction.CallbackContext context)
+	{
+		if (context.performed)
+			sprint = true;
+		else
+			sprint = false;
+	}
+
 	void Update()
 	{
-		// Store the input axes.
-		h = Input.GetAxis("Horizontal");
-		v = Input.GetAxis("Vertical");
-
 		// Set the input axes on the Animator Controller.
 		anim.SetFloat(hFloat, h, 0.1f, Time.deltaTime);
 		anim.SetFloat(vFloat, v, 0.1f, Time.deltaTime);
 
-		// Toggle sprint by input.
-		sprint = Input.GetButton (sprintButton);
+		if (camScript != null)
+		{
+			// Set the correct camera FOV for sprint mode.
+			if (IsSprinting())
+			{
+				changedFOV = true;
+				camScript.SetFOV(sprintFOV);
+			}
+			else if (changedFOV)
+			{
+				camScript.ResetFOV();
+				changedFOV = false;
+			}
+		}
 
-		// Set the correct camera FOV for sprint mode.
-		if(IsSprinting())
-		{
-			changedFOV = true;
-			camScript.SetFOV(sprintFOV);
-		}
-		else if(changedFOV)
-		{
-			camScript.ResetFOV();
-			changedFOV = false;
-		}
 		// Set the grounded test on the Animator Controller.
 		anim.SetBool(groundedBool, IsGrounded());
 	}

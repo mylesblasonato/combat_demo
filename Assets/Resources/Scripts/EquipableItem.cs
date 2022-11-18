@@ -10,21 +10,33 @@ public class EquipableItem : MonoBehaviour
     public string leftAnimation;
     public string rightAnimation;
 
-    private GameObject player;
-    private Animator animator;
+    public float size, power;
 
-    private void Awake()
+    public LayerMask interactableLayer;
+
+    public bool isHitting = false;
+    public GameObject hitTarget;
+
+    private void OnCollisionEnter(Collision collision)
     {
-        player = GameObject.FindGameObjectWithTag("Player");
-        animator = player.GetComponent<Animator>();
+        if (collision.gameObject.layer != interactableLayer) return;
+        isHitting = true;
+        hitTarget = collision.gameObject;
     }
 
-    public void Attack_Left()
+    private void OnCollisionExit(Collision collision)
+    {
+        if (collision.gameObject.layer != interactableLayer) return;
+        isHitting = false;
+        hitTarget = null;
+    }
+
+    public void Attack_Left(Animator animator)
     {
         animator.SetTrigger(leftAnimation);
     }   
     
-    public void Attack_Right()
+    public void Attack_Right(Animator animator)
     {
         animator.SetTrigger(rightAnimation);
     }

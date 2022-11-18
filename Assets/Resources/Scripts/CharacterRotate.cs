@@ -1,11 +1,22 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class CharacterRotate : MonoBehaviour
 {
     // Update is called once per frame
     void Update()
+    {
+        
+    }
+
+    public void RotateToLook(InputAction.CallbackContext context)
+    {
+        transform.localEulerAngles = new Vector3(transform.localEulerAngles.x, context.ReadValue<Vector2>().y, transform.localEulerAngles.z);
+    }
+
+    void MouseRotate()
     {
         //Get the Screen positions of the object
         Vector2 positionOnScreen = Camera.main.WorldToViewportPoint(transform.position);

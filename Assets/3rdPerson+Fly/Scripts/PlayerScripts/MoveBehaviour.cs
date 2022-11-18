@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.InputSystem;
 
 // MoveBehaviour inherits from GenericBehaviour. This class corresponds to basic walk and run behaviour, it is the default behaviour.
 public class MoveBehaviour : GenericBehaviour
@@ -7,7 +8,6 @@ public class MoveBehaviour : GenericBehaviour
 	public float runSpeed = 1.0f;                   // Default run speed.
 	public float sprintSpeed = 2.0f;                // Default sprint speed.
 	public float speedDampTime = 0.1f;              // Default damp time to change the animations based on current speed.
-	public string jumpButton = "Jump";              // Default jump button.
 	public float jumpHeight = 1.5f;                 // Default jump height.
 	public float jumpIntertialForce = 10f;          // Default horizontal inertial force when jumping.
 
@@ -31,12 +31,10 @@ public class MoveBehaviour : GenericBehaviour
 		speedSeeker = runSpeed;
 	}
 
-	// Update is used to set features regardless the active behaviour.
-	void Update()
-	{
-		// Get jump input.
-		if (!jump && Input.GetButtonDown(jumpButton) && behaviourManager.IsCurrentBehaviour(this.behaviourCode) && !behaviourManager.IsOverriding())
-		{
+	public void Jump(InputAction.CallbackContext context)
+	{ 
+		if(!jump && context.performed && behaviourManager.IsCurrentBehaviour(this.behaviourCode) && !behaviourManager.IsOverriding())
+        {
 			jump = true;
 		}
 	}
